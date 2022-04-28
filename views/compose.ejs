@@ -1,0 +1,12 @@
+<%- include("partials/header") -%>
+    <h1>
+        Compose
+    </h1>
+    <!-- will send this form as a post request to home(/) which will be handled by 1 post handler-->
+    <form action="/compose" method="post">
+        <input type="text" name="inputText" placeholder="My new project is.." required>
+        <!-- make the value to be dynamic. its a variable called publishKey -->
+        <button type="submit" name="button">Publish</button>
+    </form>
+
+    <%- include("partials/footer") -%>
