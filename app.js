@@ -4,7 +4,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
-const _ = require('lodash/String');
+const _ = require('lodash');
 
 
 // 2. variables
@@ -35,7 +35,7 @@ app.get("/", function(reqFromClient, resToClient) {
         homeStartingContentKey: homeStartingContent,
         blogPostsKey: blogPosts
     });
-})
+});
 
 
 app.get("/about", function(reqFromClient, resToClient) {
@@ -44,7 +44,7 @@ app.get("/about", function(reqFromClient, resToClient) {
         // find the key, and assign the value
         aboutContentKey: aboutContent
     });
-})
+});
 
 
 app.get("/contact", function(reqFromClient, resToClient) {
@@ -53,32 +53,14 @@ app.get("/contact", function(reqFromClient, resToClient) {
         // find the key, and assign the value
         contactContentKey: contactContent
     });
-})
+});
 
 
 
 app.get("/compose", function(reqFromClient, resToClient) {
     // render the home.ejs html
     resToClient.render("compose");
-})
-
-app.get("/:title", function(reqFromClient, resToClient) {
-
-    // if title is in posts's title array, console log match found
-    const paramTitle = _.lowerCase(reqFromClient.params.title);
-    blogPosts.forEach(function(post) {
-
-        const actualTitle = _.lowerCase(post.title);
-        if (actualTitle === paramTitle) {
-            console.log("match found " + paramTitle);
-        } else {
-            console.log("not found ") + paramTitle;
-        }
-    });
-
-    // resToClient.render(reqFromClient.params.section);
-})
-
+});
 
 app.post("/compose", function(reqFromClient, resToClient) {
     // grab the input
@@ -92,7 +74,29 @@ app.post("/compose", function(reqFromClient, resToClient) {
 
     // go back to home route and make a get request
     resToClient.redirect("/");
-})
+});
+
+
+app.get("/posts/:title", function(reqFromClient, resToClient) {
+
+    // 1. grab the param title and lower case it
+    const paramTitle = _.lowerCase(reqFromClient.params.title);
+
+    // 2. loop throug our actual list of post
+    blogPosts.forEach(function(post) {
+        const actualTitle = _.lowerCase(post.title);
+        // 4. if it matches
+        if (actualTitle === paramTitle) {
+
+            resToClient.render("post", {
+                titleKey: post.title, // shouldnt do actualTitle will keep waiting
+                contentKey: post.content
+            });
+        }
+    });
+});
+
+
 
 
 

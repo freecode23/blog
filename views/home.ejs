@@ -9,13 +9,15 @@
 
     <% blogPostsKey.forEach(function(post) {%>
         <h2>
-            <%=post.title%>
+            <a href="/posts/<%= post.title %>">
+                <%=post.title%>
+            </a>
         </h2>
         <p>
-            <%=post.content%>
+            <%=post.content.substring(0, 100) + " ..."%>
         </p>
-        <%}) %>
+        <% }); %>
 
 
 
-            <%- include( "partials/footer") -%>
+            <%- include( "partials/footer"); -%>
