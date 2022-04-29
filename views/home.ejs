@@ -7,8 +7,15 @@
     </p>
 
 
-    <p>
-        <%= blogPostsKey[0] %>
-    </p>
+    <% blogPostsKey.forEach(function(post) {%>
+        <h2>
+            <%=post.title%>
+        </h2>
+        <p>
+            <%=post.content%>
+        </p>
+        <%}) %>
 
-    <%- include("partials/footer") -%>
+
+
+            <%- include( "partials/footer") -%>

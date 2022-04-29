@@ -3,10 +3,25 @@
         Compose
     </h1>
     <!-- will send this form as a post request to home(/) which will be handled by 1 post handler-->
+
+
     <form action="/compose" method="post">
-        <input type="text" name="inputText" placeholder="My new project is.." required>
-        <!-- make the value to be dynamic. its a variable called publishKey -->
-        <button type="submit" name="button">Publish</button>
+        <!-- 1 title -->
+        <div class="form-group">
+            <label>Title</label>
+            <!-- we need the name field to grab this input from req.body.inputText -->
+            <input type="text" name="inputTitle" class="form-control" required>
+        </div>
+
+        <!-- 2 blog -->
+        <div class="form-group">
+            <label>Post</label>
+            <textarea type="text" name="inputContent" rows="5" cols="60" class="form-control" required></textarea>
+        </div>
+
+        <!-- 3 button -->
+        <button type="submit" name="button" class="btn btn-primary">Publish</button>
     </form>
 
+    <!-- make the name value to be dynamic. its a variable called publishKey -->
     <%- include("partials/footer") -%>

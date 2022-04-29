@@ -4,6 +4,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
+const _ = require('lodash/String');
 
 
 // 2. variables
@@ -61,13 +62,33 @@ app.get("/compose", function(reqFromClient, resToClient) {
     resToClient.render("compose");
 })
 
+app.get("/:title", function(reqFromClient, resToClient) {
+
+    // if title is in posts's title array, console log match found
+    const paramTitle = _.lowerCase(reqFromClient.params.title);
+    blogPosts.forEach(function(post) {
+
+        const actualTitle = _.lowerCase(post.title);
+        if (actualTitle === paramTitle) {
+            console.log("match found " + paramTitle);
+        } else {
+            console.log("not found ") + paramTitle;
+        }
+    });
+
+    // resToClient.render(reqFromClient.params.section);
+})
+
 
 app.post("/compose", function(reqFromClient, resToClient) {
     // grab the input
-    var newPost = reqFromClient.body.inputText;
+    const blogPost = {
+        title: reqFromClient.body.inputTitle,
+        content: reqFromClient.body.inputContent
 
-    // push it to our list
-    blogPosts.push(newPost);
+    };
+
+    blogPosts.push(blogPost);
 
     // go back to home route and make a get request
     resToClient.redirect("/");
