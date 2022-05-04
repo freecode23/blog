@@ -1,40 +1,73 @@
 //jshint esversion:6
+// On terminal:
+// --> 1 npm init
+// --> 2 npm install express
+// --> 3 npm install body-parser
+// --> 4 npm i mongoose
+
 
 // 1. require
 const express = require("express");
 const bodyParser = require("body-parser");
+const mongoose = require('mongoose');
 const ejs = require("ejs");
 const _ = require('lodash');
 
 
 // 2. variables
-const homeStartingContent = "Lacus vel facilisis volutpat est velit egestas dui id ornare. Semper auctor neque vitae tempus quam. Sit amet cursus sit amet dictum sit amet justo. Viverra tellus in hac habitasse. Imperdiet proin fermentum leo vel orci porta. Donec ultrices tincidunt arcu non sodales neque sodales ut. Mattis molestie a iaculis at erat pellentesque adipiscing. Magnis dis parturient montes nascetur ridiculus mus mauris vitae ultricies. Adipiscing elit ut aliquam purus sit amet luctus venenatis lectus. Ultrices vitae auctor eu augue ut lectus arcu bibendum at. Odio euismod lacinia at quis risus sed vulputate odio ut. Cursus mattis molestie a iaculis at erat pellentesque adipiscing.";
+const homeStartingContent = "This site will show various projects that highlights my interest in embedded software, machine learning, computer vision and design patterns";
 
-const aboutContent = "Hac habitasse platea dictumst vestibulum rhoncus est pellentesque. Dictumst vestibulum rhoncus est pellentesque elit ullamcorper. Non diam phasellus vestibulum lorem sed. Platea dictumst quisque sagittis purus sit. Egestas sed sed risus pretium quam vulputate dignissim suspendisse. Mauris in aliquam sem fringilla. Semper risus in hendrerit gravida rutrum quisque non tellus orci. Amet massa vitae tortor condimentum lacinia quis vel eros. Enim ut tellus elementum sagittis vitae. Mauris ultrices eros in cursus turpis massa tincidunt dui.";
+const aboutContent = "Hi, I'm Sherly.";
 
-const contactContent = "Scelerisque eleifend donec pretium vulputate sapien. Rhoncus urna neque viverra justo nec ultrices. Arcu dui vivamus arcu felis bibendum. Consectetur adipiscing elit duis tristique. Risus viverra adipiscing at in tellus integer feugiat. Sapien nec sagittis aliquam malesuada bibendum arcu vitae. Consequat interdum varius sit amet mattis. Iaculis nunc sed augue lacus. Interdum posuere lorem ipsum dolor sit amet consectetur adipiscing elit. Pulvinar elementum integer enim neque. Ultrices gravida dictum fusce ut placerat orci nulla. Mauris in aliquam sem fringilla ut morbi tincidunt. Tortor posuere ac ut consequat semper viverra nam libero.";
+const contactContent = "You can contact me at shartono1@gmail.com";
 
-var blogPosts = [];
+var blogPostsDefault = [];
 
 // 3. set and use
 const app = express();
+// tell ejs where we placed our static files
+app.use(express.static("public"));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.set('view engine', 'ejs');
 
-app.use(bodyParser.urlencoded({ extended: true }));
+// 4. set up database
+mongoose.connect("mongodb://localhost:27017/blogpostDB");
 
-// tell ejs where we our static files
-app.use(express.static("public"));
+//- create interface / schema
+const blogpostSchema = new mongoose.Schema({
+    title: {
+        type: String,
+        required: [true, "cannot add a post without title"],
+    },
 
-//4. route
+    content: {
+        type: String,
+        required: [true, "cannot add a post without content"],
+    },
+})
+
+// - create item class / model. This is a collection
+const BlogPost = mongoose.model("blogpost", blogpostSchema);
+
+// - create post object
+const post1 = new BlogPost({
+    title: "my first express project",
+    content: "this the content of the first express project"
+})
+
+// 5. Route
 // home route
 app.get("/", function(reqFromClient, resToClient) {
-    // render the home.ejs html
-    resToClient.render("home", {
-        // find the key, and assign the value
-        homeStartingContentKey: homeStartingContent,
-        blogPostsKey: blogPosts
-    });
+    console.log("\n>>>>>>>>>>>>>>>> app.get/");
+    // - update array depending on the length
+    BlogPost.find({}, function(err, foundPosts) {
+        // - get the key in html, and assign the value
+        resToClient.render("home", {
+            homeStartingContentKey: homeStartingContent,
+            blogPostsKey: foundPosts
+        });
+    })
 });
 
 
@@ -56,24 +89,25 @@ app.get("/contact", function(reqFromClient, resToClient) {
 });
 
 
-
 app.get("/compose", function(reqFromClient, resToClient) {
     // render the home.ejs html
     resToClient.render("compose");
 });
 
 app.post("/compose", function(reqFromClient, resToClient) {
-    // grab the input
-    const blogPost = {
+    console.log("\n>>>>>>>>>>>>>> app.post/");
+    const newPost = new BlogPost({
         title: reqFromClient.body.inputTitle,
         content: reqFromClient.body.inputContent
+    });
 
-    };
-
-    blogPosts.push(blogPost);
-
-    // go back to home route and make a get request
-    resToClient.redirect("/");
+    // - save it to our collections of blog
+    newPost.save(function(err) {
+        if (!err) {
+            // - go back to home route and make a get request
+            resToClient.redirect("/");
+        }
+    })
 });
 
 
@@ -83,7 +117,7 @@ app.get("/posts/:title", function(reqFromClient, resToClient) {
     const paramTitle = _.lowerCase(reqFromClient.params.title);
 
     // 2. loop throug our actual list of post
-    blogPosts.forEach(function(post) {
+    blogPostsDefault.forEach(function(post) {
         const actualTitle = _.lowerCase(post.title);
         // 4. if it matches
         if (actualTitle === paramTitle) {
