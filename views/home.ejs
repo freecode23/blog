@@ -9,7 +9,8 @@
 
     <% blogPostsKey.forEach(function(post) {%>
         <h2>
-            <a href="/posts/<%= post.title %>">
+            <!-- clicking  will take you to this route -->
+            <a href="/blogposts/<%=post._id%>">
                 <%=post.title%>
             </a>
         </h2>

@@ -11,7 +11,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require('mongoose');
 const ejs = require("ejs");
-const _ = require('lodash');
+// const _ = require('lodash');
 
 
 // 2. variables
@@ -111,21 +111,29 @@ app.post("/compose", function(reqFromClient, resToClient) {
 });
 
 
-app.get("/posts/:title", function(reqFromClient, resToClient) {
-
+app.get("/blogposts/:postid", function(reqFromClient, resToClient) {
+    console.log("\n>>>>>>>>>>>>>> app.get/blogposts/:postid");
     // 1. grab the param title and lower case it
-    const paramTitle = _.lowerCase(reqFromClient.params.title);
+    // why can you not use name here to match with mongodb database?
+    // it gives me null error
+    // will need to change :postid to :posttitle and change the home.ejs anchor tag to post.title
+    const paramPostId = reqFromClient.params.postid;
 
-    // 2. loop throug our actual list of post
-    blogPostsDefault.forEach(function(post) {
-        const actualTitle = _.lowerCase(post.title);
-        // 4. if it matches
-        if (actualTitle === paramTitle) {
+
+    // 2. The id getter returns a string representation of the document's _id (which is added to all MongoDB documents by default and have a default type of ObjectId). always use id to avoid error
+    BlogPost.findOne({ id: paramPostId }, function(err, blogpost) {
+        if (!err) {
+            console.log("title: " + blogpost.title);
 
             resToClient.render("post", {
-                titleKey: post.title, // shouldnt do actualTitle will keep waiting
-                contentKey: post.content
+                titleKey: blogpost.title, // shouldnt do actualTitle will keep waiting
+                contentKey: blogpost.content
             });
+            console.log("not error");
+
+        } else {
+            console.log(err);
+
         }
     });
 });
